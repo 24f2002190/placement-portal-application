@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Manage Companies{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Companies</h3>
+  <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">← Dashboard</a>
+</div>
+
+<!-- Search -->
+<form method="GET" class="d-flex gap-2 mb-4">
+  <input type="text" name="search" class="form-control" placeholder="Search by name or ID..." value="{{ search }}">
+  <button type="submit" class="btn btn-primary">Search</button>
+  {% if search %}
+    <a href="{{ url_for('admin.companies') }}" class="btn btn-outline-secondary">Clear</a>
+  {% endif %}
+</form>
+
+<div class="table-responsive">
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th><th>Name</th><th>Email</th><th>HR Contact</th>
+        <th>Status</th><th>Blacklisted</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in companies %}
+      <tr class="{{ 'table-danger' if c.is_blacklisted else '' }}">
+        <td>{{ c.company_id }}</td>
+        <td>{{ c.company_name }}</td>
+        <td>{{ c.email }}</td>
+        <td>{{ c.hr_contact or '—' }}</td>
+        <td>
+          {% if c.approval_status == 'Approved' %}
+            <span class="badge bg-success">Approved</span>
+          {% elif c.approval_status == 'Pending' %}
+            <span class="badge bg-warning text-dark">Pending</span>
+          {% else %}
+            <span class="badge bg-danger">Rejected</span>
+          {% endif %}
+        </td>
+        <td>{{ '🚫 Yes' if c.is_blacklisted else '✅ No' }}</td>
+        <td>
+          <div class="d-flex gap-1 flex-wrap">
+            {% if c.approval_status == 'Pending' %}
+              <a href="{{ url_for('admin.approve_company', company_id=c.company_id) }}" class="btn btn-success btn-sm">Approve</a>
+              <a href="{{ url_for('admin.reject_company', company_id=c.company_id) }}" class="btn btn-warning btn-sm">Reject</a>
+            {% endif %}
+            <a href="{{ url_for('admin.blacklist_company', company_id=c.company_id) }}"
+               class="btn btn-sm {{ 'btn-secondary' if c.is_blacklisted else 'btn-danger' }}">
+              {{ 'Unblacklist' if c.is_blacklisted else 'Blacklist' }}
+            </a>
+            <a href="{{ url_for('admin.delete_company', company_id=c.company_id) }}"
+               class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Delete this company?')">Delete</a>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="text-center text-muted">No companies found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

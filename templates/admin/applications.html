@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Manage Drives{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>Placement Drives</h3>
+  <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">← Dashboard</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th><th>Company</th><th>Job Title</th>
+        <th>Deadline</th><th>Status</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in drives %}
+      <tr>
+        <td>{{ d.drive_id }}</td>
+        <td>{{ d.company_name }}</td>
+        <td>{{ d.job_title }}</td>
+        <td>{{ d.application_deadline or '—' }}</td>
+        <td>
+          {% if d.status == 'Approved' %}
+            <span class="badge bg-success">Approved</span>
+          {% elif d.status == 'Pending' %}
+            <span class="badge bg-warning text-dark">Pending</span>
+          {% elif d.status == 'Closed' %}
+            <span class="badge bg-secondary">Closed</span>
+          {% else %}
+            <span class="badge bg-danger">Rejected</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="d-flex gap-1">
+            {% if d.status == 'Pending' %}
+              <a href="{{ url_for('admin.approve_drive', drive_id=d.drive_id) }}" class="btn btn-success btn-sm">Approve</a>
+              <a href="{{ url_for('admin.reject_drive', drive_id=d.drive_id) }}" class="btn btn-warning btn-sm">Reject</a>
+            {% else %}
+              <span class="text-muted small">No actions</span>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-center text-muted">No drives found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

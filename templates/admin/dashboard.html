@@ -1,6 +1,77 @@
 {% extends 'base.html' %}
 {% block title %}Admin Dashboard{% endblock %}
+
 {% block content %}
-<h2>Welcome, Admin 👋</h2>
-<p>Admin dashboard — coming in Milestone 3.</p>
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<!-- Stat Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary shadow">
+      <div class="card-body">
+        <h6 class="card-title">Total Students</h6>
+        <h2>{{ stats.total_students }}</h2>
+        <a href="{{ url_for('admin.students') }}" class="text-white small">View all →</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-success shadow">
+      <div class="card-body">
+        <h6 class="card-title">Total Companies</h6>
+        <h2>{{ stats.total_companies }}</h2>
+        <a href="{{ url_for('admin.companies') }}" class="text-white small">View all →</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-info shadow">
+      <div class="card-body">
+        <h6 class="card-title">Placement Drives</h6>
+        <h2>{{ stats.total_drives }}</h2>
+        <a href="{{ url_for('admin.drives') }}" class="text-white small">View all →</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-warning shadow">
+      <div class="card-body">
+        <h6 class="card-title">Applications</h6>
+        <h2>{{ stats.total_apps }}</h2>
+        <a href="{{ url_for('admin.applications') }}" class="text-white small">View all →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pending Alerts -->
+{% if stats.pending_companies > 0 %}
+<div class="alert alert-warning">
+  ⚠️ <strong>{{ stats.pending_companies }}</strong> company registration(s) awaiting approval.
+  <a href="{{ url_for('admin.companies') }}" class="alert-link">Review now</a>
+</div>
+{% endif %}
+
+{% if stats.pending_drives > 0 %}
+<div class="alert alert-info">
+  📋 <strong>{{ stats.pending_drives }}</strong> placement drive(s) awaiting approval.
+  <a href="{{ url_for('admin.drives') }}" class="alert-link">Review now</a>
+</div>
+{% endif %}
+
+<!-- Quick Nav -->
+<div class="row g-3 mt-2">
+  <div class="col-md-3">
+    <a href="{{ url_for('admin.students') }}" class="btn btn-outline-primary w-100">👨‍🎓 Manage Students</a>
+  </div>
+  <div class="col-md-3">
+    <a href="{{ url_for('admin.companies') }}" class="btn btn-outline-success w-100">🏢 Manage Companies</a>
+  </div>
+  <div class="col-md-3">
+    <a href="{{ url_for('admin.drives') }}" class="btn btn-outline-info w-100">📋 Manage Drives</a>
+  </div>
+  <div class="col-md-3">
+    <a href="{{ url_for('admin.applications') }}" class="btn btn-outline-warning w-100">📄 View Applications</a>
+  </div>
+</div>
 {% endblock %}
