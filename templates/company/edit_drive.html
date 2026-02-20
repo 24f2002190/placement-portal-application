@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Edit Drive{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="card shadow">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4>Edit Drive</h4>
+          <a href="{{ url_for('company.dashboard') }}" class="btn btn-outline-secondary btn-sm">← Back</a>
+        </div>
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label">Job Title *</label>
+            <input type="text" name="job_title" class="form-control"
+                   value="{{ drive.job_title }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Job Description</label>
+            <textarea name="job_description" class="form-control" rows="3">{{ drive.job_description or '' }}</textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Eligibility Criteria</label>
+            <input type="text" name="eligibility" class="form-control"
+                   value="{{ drive.eligibility or '' }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Skills Required</label>
+            <input type="text" name="skills_required" class="form-control"
+                   value="{{ drive.skills_required or '' }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Salary Range</label>
+            <input type="text" name="salary_range" class="form-control"
+                   value="{{ drive.salary_range or '' }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Application Deadline</label>
+            <input type="date" name="application_deadline" class="form-control"
+                   value="{{ drive.application_deadline or '' }}">
+          </div>
+          <div class="alert alert-warning py-2 small">
+            ⚠️ Editing will reset this drive to <strong>Pending</strong> and require re-approval from admin.
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,6 +1,104 @@
 {% extends 'base.html' %}
 {% block title %}Company Dashboard{% endblock %}
+
 {% block content %}
-<h2>Welcome, {{ session.user_name }} 👋</h2>
-<p>Company dashboard — coming in Milestone 4.</p>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2>{{ company.company_name }}</h2>
+    <p class="text-muted mb-0">{{ company.website or '' }} | {{ company.hr_contact or '' }}</p>
+  </div>
+  <a href="{{ url_for('company.create_drive') }}" class="btn btn-primary">+ New Drive</a>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary shadow">
+      <div class="card-body">
+        <h6>Total Drives</h6>
+        <h2>{{ stats.total_drives }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-success shadow">
+      <div class="card-body">
+        <h6>Approved Drives</h6>
+        <h2>{{ stats.approved_drives }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-warning shadow">
+      <div class="card-body">
+        <h6>Pending Approval</h6>
+        <h2>{{ stats.pending_drives }}</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-info shadow">
+      <div class="card-body">
+        <h6>Total Applicants</h6>
+        <h2>{{ stats.total_applicants }}</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Drives Table -->
+<h5 class="mb-3">Your Placement Drives</h5>
+{% if drives %}
+<div class="table-responsive">
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Job Title</th><th>Deadline</th><th>Status</th>
+        <th>Applicants</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in drives %}
+      <tr>
+        <td>{{ d.job_title }}</td>
+        <td>{{ d.application_deadline or '—' }}</td>
+        <td>
+          {% if d.status == 'Approved' %}
+            <span class="badge bg-success">Approved</span>
+          {% elif d.status == 'Pending' %}
+            <span class="badge bg-warning text-dark">Pending</span>
+          {% elif d.status == 'Closed' %}
+            <span class="badge bg-secondary">Closed</span>
+          {% else %}
+            <span class="badge bg-danger">Rejected</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('company.drive_applications', drive_id=d.drive_id) }}"
+             class="btn btn-outline-info btn-sm">
+            {{ d.applicant_count }} applicant(s)
+          </a>
+        </td>
+        <td>
+          <div class="d-flex gap-1 flex-wrap">
+            <a href="{{ url_for('company.edit_drive', drive_id=d.drive_id) }}"
+               class="btn btn-sm btn-outline-primary">Edit</a>
+            {% if d.status != 'Closed' %}
+            <a href="{{ url_for('company.close_drive', drive_id=d.drive_id) }}"
+               class="btn btn-sm btn-outline-secondary"
+               onclick="return confirm('Close this drive?')">Close</a>
+            {% endif %}
+            <a href="{{ url_for('company.delete_drive', drive_id=d.drive_id) }}"
+               class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Delete this drive?')">Delete</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-light border">No drives yet. <a href="{{ url_for('company.create_drive') }}">Create your first drive →</a></div>
+{% endif %}
 {% endblock %}
