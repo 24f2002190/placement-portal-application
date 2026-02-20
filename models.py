@@ -110,3 +110,25 @@ def seed_admin():
         print("ℹ️  Admin already exists, skipping seed.")
 
     conn.close()
+
+def get_user_by_email(email, role):
+    """
+    Fetch a user by email for a given role.
+    role must be: 'admin', 'student', or 'company'
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+
+    if role == 'admin':
+        cursor.execute("SELECT * FROM admin WHERE email = ?", (email,))
+    elif role == 'student':
+        cursor.execute("SELECT * FROM student WHERE email = ?", (email,))
+    elif role == 'company':
+        cursor.execute("SELECT * FROM company WHERE email = ?", (email,))
+    else:
+        conn.close()
+        return None
+
+    user = cursor.fetchone()
+    conn.close()
+    return user
