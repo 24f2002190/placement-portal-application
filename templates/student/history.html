@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Placement History{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>My Placement History</h3>
+  <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary btn-sm">← Dashboard</a>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-2">
+    <div class="card text-center shadow-sm">
+      <div class="card-body py-2">
+        <h4 class="mb-0">{{ summary.total }}</h4>
+        <small class="text-muted">Total</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card text-center shadow-sm border-secondary">
+      <div class="card-body py-2">
+        <h4 class="mb-0 text-secondary">{{ summary.applied }}</h4>
+        <small class="text-muted">Applied</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card text-center shadow-sm border-info">
+      <div class="card-body py-2">
+        <h4 class="mb-0 text-info">{{ summary.shortlisted }}</h4>
+        <small class="text-muted">Shortlisted</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card text-center shadow-sm border-success">
+      <div class="card-body py-2">
+        <h4 class="mb-0 text-success">{{ summary.selected }}</h4>
+        <small class="text-muted">Selected</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-2">
+    <div class="card text-center shadow-sm border-danger">
+      <div class="card-body py-2">
+        <h4 class="mb-0 text-danger">{{ summary.rejected }}</h4>
+        <small class="text-muted">Rejected</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if history %}
+<div class="table-responsive">
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Company</th>
+        <th>Job Title</th>
+        <th>Salary</th>
+        <th>Deadline</th>
+        <th>Applied On</th>
+        <th>Drive Status</th>
+        <th>My Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>
+          {{ h.company_name }}
+          {% if h.website %}
+            <br><a href="{{ h.website }}" target="_blank" class="small">🌐 Website</a>
+          {% endif %}
+        </td>
+        <td>
+          {{ h.job_title }}
+          {% if h.skills_required %}
+            <br><small class="text-muted">{{ h.skills_required }}</small>
+          {% endif %}
+        </td>
+        <td>{{ h.salary_range or '—' }}</td>
+        <td>{{ h.application_deadline or '—' }}</td>
+        <td>{{ h.application_date[:10] }}</td>
+        <td>
+          {% if h.drive_status == 'Approved' %}
+            <span class="badge bg-success">Active</span>
+          {% elif h.drive_status == 'Closed' %}
+            <span class="badge bg-secondary">Closed</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">{{ h.drive_status }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if h.status == 'Selected' %}
+            <span class="badge bg-success">🎉 Selected</span>
+          {% elif h.status == 'Shortlisted' %}
+            <span class="badge bg-info text-dark">⭐ Shortlisted</span>
+          {% elif h.status == 'Rejected' %}
+            <span class="badge bg-danger">❌ Rejected</span>
+          {% else %}
+            <span class="badge bg-secondary">📨 Applied</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+<div class="alert alert-light border text-center">
+  No application history yet.
+  <a href="{{ url_for('student.dashboard') }}">Browse drives →</a>
+</div>
+{% endif %}
+{% endblock %}

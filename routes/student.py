@@ -189,3 +189,35 @@ def profile():
 
     conn.close()
     return render_template('student/profile.html', student=student)
+
+@student_bp.route('/history')
+@student_required
+def history():
+    student_id = session['user_id']
+    conn = get_db()
+
+    # Complete history — all statuses, all time, never filtered out
+    history = conn.execute("""
+        SELECT a.*, pd.job_title, pd.job_description,
+               pd.salary_range, pd.eligibility,
+               pd.skills_required, pd.application_deadline,
+               pd.status AS drive_status,
+               c.company_name, c.website
+        FROM application a
+        JOIN placement_drive pd ON a.drive_id  = pd.drive_id
+        JOIN company c          ON pd.company_id = c.company_id
+        WHERE a.student_id = ?
+        ORDER BY a.application_date DESC
+    """, (student_id,)).fetchall()
+
+    # Summary counts
+    summary = {
+        'total'      : len(history),
+        'applied'    : sum(1 for h in history if h['status'] == 'Applied'),
+        'shortlisted': sum(1 for h in history if h['status'] == 'Shortlisted'),
+        'selected'   : sum(1 for h in history if h['status'] == 'Selected'),
+        'rejected'   : sum(1 for h in history if h['status'] == 'Rejected'),
+    }
+
+    conn.close()
+    return render_template('student/history.html', history=history, summary=summary)

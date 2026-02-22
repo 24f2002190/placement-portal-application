@@ -63,6 +63,17 @@ def dashboard():
 @company_bp.route('/drives/create', methods=['GET', 'POST'])
 @company_required
 def create_drive():
+    # Extra safety check — only approved companies can create drives
+    conn = get_db()
+    company = conn.execute(
+        "SELECT * FROM company WHERE company_id=?", (session['user_id'],)
+    ).fetchone()
+
+    if company['approval_status'] != 'Approved':
+        conn.close()
+        flash('Only approved companies can create placement drives.', 'danger')
+        return redirect(url_for('company.dashboard'))
+
     if request.method == 'POST':
         job_title    = request.form.get('job_title', '').strip()
         description  = request.form.get('job_description', '').strip()
@@ -73,9 +84,9 @@ def create_drive():
 
         if not job_title:
             flash('Job title is required.', 'danger')
+            conn.close()
             return render_template('company/create_drive.html')
 
-        conn = get_db()
         conn.execute("""
             INSERT INTO placement_drive
                 (company_id, job_title, job_description, eligibility,
@@ -89,6 +100,7 @@ def create_drive():
         flash('Drive submitted for admin approval.', 'success')
         return redirect(url_for('company.dashboard'))
 
+    conn.close()
     return render_template('company/create_drive.html')
 
 
@@ -235,3 +247,28 @@ def update_application(application_id):
 
     flash(f'Application status updated to {new_status}.', 'success')
     return redirect(url_for('company.drive_applications', drive_id=drive_id))
+
+@company_bp.route('/students/<int:student_id>/view')
+@company_required
+def view_student(student_id):
+    conn = get_db()
+    company_id = session['user_id']
+
+    # Only show student if they applied to this company's drive
+    applied = conn.execute("""
+        SELECT a.* FROM application a
+        JOIN placement_drive pd ON a.drive_id = pd.drive_id
+        WHERE a.student_id = ? AND pd.company_id = ?
+    """, (student_id, company_id)).fetchone()
+
+    if not applied:
+        flash('Student not found or has not applied to your drives.', 'danger')
+        conn.close()
+        return redirect(url_for('company.dashboard'))
+
+    student = conn.execute(
+        "SELECT * FROM student WHERE student_id=?", (student_id,)
+    ).fetchone()
+
+    conn.close()
+    return render_template('company/view_student.html', student=student)

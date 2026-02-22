@@ -35,6 +35,8 @@
         <td>{{ '🚫 Yes' if s.is_blacklisted else '✅ No' }}</td>
         <td>
           <div class="d-flex gap-1 flex-wrap">
+            <a href="{{ url_for('admin.view_student', student_id=s.student_id) }}"
+               class="btn btn-sm btn-outline-info">View</a>
             <a href="{{ url_for('admin.toggle_student_active', student_id=s.student_id) }}"
                class="btn btn-sm {{ 'btn-success' if not s.is_active else 'btn-secondary' }}">
               {{ 'Activate' if not s.is_active else 'Deactivate' }}

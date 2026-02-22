@@ -215,3 +215,30 @@ def applications():
     """).fetchall()
     conn.close()
     return render_template('admin/applications.html', apps=apps)
+
+@admin_bp.route('/students/<int:student_id>/view')
+@admin_required
+def view_student(student_id):
+    conn = get_db()
+
+    student = conn.execute(
+        "SELECT * FROM student WHERE student_id=?", (student_id,)
+    ).fetchone()
+
+    if not student:
+        flash('Student not found.', 'danger')
+        conn.close()
+        return redirect(url_for('admin.students'))
+
+    applications = conn.execute("""
+        SELECT a.*, pd.job_title, c.company_name
+        FROM application a
+        JOIN placement_drive pd ON a.drive_id   = pd.drive_id
+        JOIN company c          ON pd.company_id = c.company_id
+        WHERE a.student_id = ?
+        ORDER BY a.application_date DESC
+    """, (student_id,)).fetchall()
+
+    conn.close()
+    return render_template('admin/view_student.html',
+                           student=student, applications=applications)

@@ -23,7 +23,12 @@
     <tbody>
       {% for a in applications %}
       <tr>
-        <td>{{ a.name }}</td>
+        <td>
+          {{ a.name }}
+          <br>
+          <a href="{{ url_for('company.view_student', student_id=a.student_id) }}"
+             class="btn btn-sm btn-outline-info mt-1">Profile</a>
+        </td>
         <td>{{ a.email }}</td>
         <td>{{ a.phone or '—' }}</td>
         <td>{{ a.cgpa or '—' }}</td>
@@ -52,10 +57,10 @@
                 action="{{ url_for('company.update_application', application_id=a.application_id) }}">
             <div class="d-flex gap-1">
               <select name="status" class="form-select form-select-sm">
-                <option value="Applied"      {{ 'selected' if a.status=='Applied' }}>Applied</option>
-                <option value="Shortlisted"  {{ 'selected' if a.status=='Shortlisted' }}>Shortlisted</option>
-                <option value="Selected"     {{ 'selected' if a.status=='Selected' }}>Selected</option>
-                <option value="Rejected"     {{ 'selected' if a.status=='Rejected' }}>Rejected</option>
+                <option value="Applied"     {{ 'selected' if a.status=='Applied' }}>Applied</option>
+                <option value="Shortlisted" {{ 'selected' if a.status=='Shortlisted' }}>Shortlisted</option>
+                <option value="Selected"    {{ 'selected' if a.status=='Selected' }}>Selected</option>
+                <option value="Rejected"    {{ 'selected' if a.status=='Rejected' }}>Rejected</option>
               </select>
               <button type="submit" class="btn btn-sm btn-primary">Save</button>
             </div>
