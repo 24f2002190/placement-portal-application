@@ -88,7 +88,7 @@ def create_tables():
     ''')
     conn.commit()
     conn.close()
-    print("✅ All tables created successfully.")
+    print("All tables created successfully.")
 
 
 def seed_admin():
@@ -105,9 +105,9 @@ def seed_admin():
             VALUES (?, ?, ?)
         ''', ('admin', 'admin123', 'admin@placement.com'))
         conn.commit()
-        print("✅ Default admin seeded: username='admin', password='admin123'")
+        print("Default admin seeded: username='admin', password='admin123'")
     else:
-        print("ℹ️  Admin already exists, skipping seed.")
+        print("Admin already exists, skipping seed.")
 
     conn.close()
 

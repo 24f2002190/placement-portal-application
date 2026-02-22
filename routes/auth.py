@@ -11,16 +11,15 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    # If user is already logged in, redirect them to their dashboard
+   
     if 'user_id' in session:
         return redirect(url_for(session['role'] + '.dashboard'))
 
     if request.method == 'POST':
         email    = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
-        role     = request.form.get('role', '').strip()  # 'admin', 'student', 'company'
+        role     = request.form.get('role', '').strip()  
 
-        # Basic validation
         if not email or not password or not role:
             flash('Please fill in all fields.', 'danger')
             return render_template('auth/login.html')
@@ -42,7 +41,6 @@ def login():
             flash('Incorrect password.', 'danger')
             return render_template('auth/login.html')
 
-        # Role-specific checks before allowing login
         if role == 'company':
             if user['approval_status'] == 'Pending':
                 flash('Your company registration is pending admin approval.', 'warning')
@@ -62,7 +60,6 @@ def login():
                 flash('Your account has been deactivated. Contact admin.', 'danger')
                 return render_template('auth/login.html')
 
-        # All checks passed — store user info in session
         if role == 'admin':
             session['user_id']   = user['admin_id']
             session['user_name'] = user['username']
@@ -100,7 +97,6 @@ def register_student():
             flash('Name, email, and password are required.', 'danger')
             return render_template('auth/register_student.html')
 
-        # Check if email already exists
         existing = get_user_by_email(email, 'student')
         if existing:
             flash('An account with this email already exists.', 'danger')

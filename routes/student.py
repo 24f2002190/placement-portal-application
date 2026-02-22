@@ -32,8 +32,6 @@ def dashboard():
     student_id = session['user_id']
     conn = get_db()
 
-    # All approved drives with company name
-    # Also check if this student has already applied to each drive
     drives = conn.execute("""
         SELECT pd.*, c.company_name,
                a.application_id, a.status AS app_status
@@ -45,7 +43,6 @@ def dashboard():
         ORDER BY pd.created_at DESC
     """, (student_id,)).fetchall()
 
-    # Student's own applications with drive and company info
     my_applications = conn.execute("""
         SELECT a.*, pd.job_title, pd.salary_range,
                pd.application_deadline, c.company_name
@@ -70,7 +67,6 @@ def apply(drive_id):
     student_id = session['user_id']
     conn = get_db()
 
-    # Check drive exists and is approved
     drive = conn.execute("""
         SELECT * FROM placement_drive
         WHERE drive_id = ? AND status = 'Approved'
@@ -81,7 +77,6 @@ def apply(drive_id):
         conn.close()
         return redirect(url_for('student.dashboard'))
 
-    # Check for duplicate application
     existing = conn.execute("""
         SELECT * FROM application
         WHERE student_id = ? AND drive_id = ?
@@ -92,7 +87,6 @@ def apply(drive_id):
         conn.close()
         return redirect(url_for('student.dashboard'))
 
-    # Insert application
     try:
         conn.execute("""
             INSERT INTO application (student_id, drive_id)
@@ -155,13 +149,11 @@ def profile():
             conn.close()
             return render_template('student/profile.html', student=student)
 
-        # Handle resume upload
-        resume_path = student['resume_path']  # keep existing if no new file
+        resume_path = student['resume_path']  
         file = request.files.get('resume')
 
         if file and file.filename:
             if allowed_file(file.filename):
-                # Make sure uploads folder exists
                 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
                 filename    = secure_filename(f"student_{student_id}_{file.filename}")
                 save_path   = os.path.join(UPLOAD_FOLDER, filename)
@@ -181,7 +173,6 @@ def profile():
               resume_path, student_id))
         conn.commit()
 
-        # Update name in session
         session['user_name'] = name
         flash('Profile updated successfully!', 'success')
         conn.close()
@@ -196,7 +187,6 @@ def history():
     student_id = session['user_id']
     conn = get_db()
 
-    # Complete history — all statuses, all time, never filtered out
     history = conn.execute("""
         SELECT a.*, pd.job_title, pd.job_description,
                pd.salary_range, pd.eligibility,

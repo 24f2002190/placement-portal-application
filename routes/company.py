@@ -28,7 +28,6 @@ def dashboard():
         "SELECT * FROM company WHERE company_id=?", (company_id,)
     ).fetchone()
 
-    # Get all drives by this company with applicant count per drive
     drives = conn.execute("""
         SELECT pd.*,
                COUNT(a.application_id) AS applicant_count
@@ -63,7 +62,7 @@ def dashboard():
 @company_bp.route('/drives/create', methods=['GET', 'POST'])
 @company_required
 def create_drive():
-    # Extra safety check — only approved companies can create drives
+
     conn = get_db()
     company = conn.execute(
         "SELECT * FROM company WHERE company_id=?", (session['user_id'],)
@@ -136,7 +135,6 @@ def edit_drive(drive_id):
             WHERE drive_id=? AND company_id=?
         """, (job_title, description, eligibility, skills, salary, deadline,
               drive_id, session['user_id']))
-        # status resets to Pending so admin re-approves any edits
         conn.commit()
         conn.close()
 
@@ -186,7 +184,6 @@ def delete_drive(drive_id):
 def drive_applications(drive_id):
     conn = get_db()
 
-    # Make sure this drive belongs to this company
     drive = conn.execute("""
         SELECT * FROM placement_drive
         WHERE drive_id=? AND company_id=?
@@ -225,7 +222,6 @@ def update_application(application_id):
 
     conn = get_db()
 
-    # Get drive_id so we can redirect back to the right applications page
     app_row = conn.execute("""
         SELECT a.drive_id FROM application a
         JOIN placement_drive pd ON a.drive_id = pd.drive_id
@@ -254,7 +250,6 @@ def view_student(student_id):
     conn = get_db()
     company_id = session['user_id']
 
-    # Only show student if they applied to this company's drive
     applied = conn.execute("""
         SELECT a.* FROM application a
         JOIN placement_drive pd ON a.drive_id = pd.drive_id
