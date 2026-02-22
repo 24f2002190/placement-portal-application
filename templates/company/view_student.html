@@ -17,7 +17,7 @@
     <p class="mb-1"><strong>Skills:</strong> {{ student.skills or '—' }}</p>
     {% if student.resume_path %}
       <a href="/static/{{ student.resume_path }}" target="_blank"
-         class="btn btn-outline-secondary btn-sm mt-2">📄 View Resume</a>
+         class="btn btn-outline-secondary btn-sm mt-2">View Resume</a>
     {% else %}
       <p class="text-muted mt-2">No resume uploaded.</p>
     {% endif %}

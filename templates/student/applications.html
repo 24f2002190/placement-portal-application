@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2>Welcome, {{ session.user_name }} 👋</h2>
+  <h2>Welcome, {{ session.user_name }} </h2>
   <div class="d-flex gap-2">
     <a href="{{ url_for('student.applications') }}" class="btn btn-outline-primary">My Applications</a>
     <a href="{{ url_for('student.profile') }}" class="btn btn-outline-secondary">Edit Profile</a>
@@ -13,7 +13,7 @@
 <!-- My Applications Summary -->
 {% if my_applications %}
 <div class="card mb-4 border-0 shadow-sm">
-  <div class="card-header bg-dark text-white">📋 My Recent Applications</div>
+  <div class="card-header bg-dark text-white">My Recent Applications</div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0">
       <thead class="table-light">
@@ -29,13 +29,13 @@
           <td>{{ a.application_date[:10] }}</td>
           <td>
             {% if a.status == 'Selected' %}
-              <span class="badge bg-success">🎉 Selected</span>
+              <span class="badge bg-success">Selected</span>
             {% elif a.status == 'Shortlisted' %}
-              <span class="badge bg-info text-dark">⭐ Shortlisted</span>
+              <span class="badge bg-info text-dark">Shortlisted</span>
             {% elif a.status == 'Rejected' %}
-              <span class="badge bg-danger">❌ Rejected</span>
+              <span class="badge bg-danger">Rejected</span>
             {% else %}
-              <span class="badge bg-secondary">📨 Applied</span>
+              <span class="badge bg-secondary">Applied</span>
             {% endif %}
           </td>
         </tr>
@@ -52,7 +52,7 @@
 {% endif %}
 
 <!-- Available Drives -->
-<h5 class="mb-3">🏢 Available Placement Drives</h5>
+<h5 class="mb-3">Available Placement Drives</h5>
 
 {% if drives %}
 <div class="row g-3">
@@ -64,30 +64,30 @@
           <h5 class="card-title mb-1">{{ d.job_title }}</h5>
           {% if d.application_id %}
             {% if d.app_status == 'Selected' %}
-              <span class="badge bg-success">🎉 Selected</span>
+              <span class="badge bg-success">Selected</span>
             {% elif d.app_status == 'Shortlisted' %}
-              <span class="badge bg-info text-dark">⭐ Shortlisted</span>
+              <span class="badge bg-info text-dark">Shortlisted</span>
             {% elif d.app_status == 'Rejected' %}
-              <span class="badge bg-danger">❌ Rejected</span>
+              <span class="badge bg-danger">Rejected</span>
             {% else %}
               <span class="badge bg-secondary">Applied</span>
             {% endif %}
           {% endif %}
         </div>
 
-        <p class="text-muted mb-1">🏢 {{ d.company_name }}</p>
+        <p class="text-muted mb-1">{{ d.company_name }}</p>
 
         {% if d.salary_range %}
-          <p class="mb-1"><small>💰 {{ d.salary_range }}</small></p>
+          <p class="mb-1"><small>{{ d.salary_range }}</small></p>
         {% endif %}
         {% if d.eligibility %}
-          <p class="mb-1"><small>📋 {{ d.eligibility }}</small></p>
+          <p class="mb-1"><small>{{ d.eligibility }}</small></p>
         {% endif %}
         {% if d.skills_required %}
-          <p class="mb-1"><small>🛠 {{ d.skills_required }}</small></p>
+          <p class="mb-1"><small>{{ d.skills_required }}</small></p>
         {% endif %}
         {% if d.application_deadline %}
-          <p class="mb-2"><small>⏰ Deadline: {{ d.application_deadline }}</small></p>
+          <p class="mb-2"><small>Deadline: {{ d.application_deadline }}</small></p>
         {% endif %}
 
         {% if d.job_description %}

@@ -71,7 +71,7 @@
         <td>
           {{ h.company_name }}
           {% if h.website %}
-            <br><a href="{{ h.website }}" target="_blank" class="small">🌐 Website</a>
+            <br><a href="{{ h.website }}" target="_blank" class="small">Website</a>
           {% endif %}
         </td>
         <td>
@@ -94,13 +94,13 @@
         </td>
         <td>
           {% if h.status == 'Selected' %}
-            <span class="badge bg-success">🎉 Selected</span>
+            <span class="badge bg-success">Selected</span>
           {% elif h.status == 'Shortlisted' %}
-            <span class="badge bg-info text-dark">⭐ Shortlisted</span>
+            <span class="badge bg-info text-dark">Shortlisted</span>
           {% elif h.status == 'Rejected' %}
-            <span class="badge bg-danger">❌ Rejected</span>
+            <span class="badge bg-danger">Rejected</span>
           {% else %}
-            <span class="badge bg-secondary">📨 Applied</span>
+            <span class="badge bg-secondary">Applied</span>
           {% endif %}
         </td>
       </tr>
