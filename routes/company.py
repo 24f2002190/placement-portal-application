@@ -1,13 +1,13 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from functools import wraps
-from models import get_db
+from models import connect_db
 
 company_bp = Blueprint('company', __name__, url_prefix='/company')
 
 
 # ── DECORATOR ────────────────────────────────────────────────────────────────
 
-def company_required(f):
+def requires_company(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if session.get('role') != 'company':
@@ -19,10 +19,10 @@ def company_required(f):
 # ── DASHBOARD ────────────────────────────────────────────────────────────────
 
 @company_bp.route('/dashboard')
-@company_required
+@requires_company
 def dashboard():
     company_id = session['user_id']
-    conn = get_db()
+    conn = connect_db()
 
     company = conn.execute(
         "SELECT * FROM company WHERE company_id=?", (company_id,)
@@ -60,10 +60,10 @@ def dashboard():
 # ── CREATE DRIVE ─────────────────────────────────────────────────────────────
 
 @company_bp.route('/drives/create', methods=['GET', 'POST'])
-@company_required
+@requires_company
 def create_drive():
 
-    conn = get_db()
+    conn = connect_db()
     company = conn.execute(
         "SELECT * FROM company WHERE company_id=?", (session['user_id'],)
     ).fetchone()
@@ -106,9 +106,9 @@ def create_drive():
 # ── EDIT DRIVE ───────────────────────────────────────────────────────────────
 
 @company_bp.route('/drives/<int:drive_id>/edit', methods=['GET', 'POST'])
-@company_required
+@requires_company
 def edit_drive(drive_id):
-    conn  = get_db()
+    conn  = connect_db()
     drive = conn.execute(
         "SELECT * FROM placement_drive WHERE drive_id=? AND company_id=?",
         (drive_id, session['user_id'])
@@ -148,9 +148,9 @@ def edit_drive(drive_id):
 # ── CLOSE DRIVE ──────────────────────────────────────────────────────────────
 
 @company_bp.route('/drives/<int:drive_id>/close')
-@company_required
+@requires_company
 def close_drive(drive_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("""
         UPDATE placement_drive SET status='Closed'
         WHERE drive_id=? AND company_id=?
@@ -164,9 +164,9 @@ def close_drive(drive_id):
 # ── DELETE DRIVE ─────────────────────────────────────────────────────────────
 
 @company_bp.route('/drives/<int:drive_id>/delete')
-@company_required
+@requires_company
 def delete_drive(drive_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("""
         DELETE FROM placement_drive
         WHERE drive_id=? AND company_id=?
@@ -180,9 +180,9 @@ def delete_drive(drive_id):
 # ── VIEW APPLICATIONS FOR A DRIVE ────────────────────────────────────────────
 
 @company_bp.route('/drives/<int:drive_id>/applications')
-@company_required
+@requires_company
 def drive_applications(drive_id):
-    conn = get_db()
+    conn = connect_db()
 
     drive = conn.execute("""
         SELECT * FROM placement_drive
@@ -211,7 +211,7 @@ def drive_applications(drive_id):
 # ── UPDATE APPLICATION STATUS ─────────────────────────────────────────────────
 
 @company_bp.route('/applications/<int:application_id>/update', methods=['POST'])
-@company_required
+@requires_company
 def update_application(application_id):
     new_status = request.form.get('status')
     valid = ['Applied', 'Shortlisted', 'Selected', 'Rejected']
@@ -220,7 +220,7 @@ def update_application(application_id):
         flash('Invalid status.', 'danger')
         return redirect(url_for('company.dashboard'))
 
-    conn = get_db()
+    conn = connect_db()
 
     app_row = conn.execute("""
         SELECT a.drive_id FROM application a
@@ -245,9 +245,9 @@ def update_application(application_id):
     return redirect(url_for('company.drive_applications', drive_id=drive_id))
 
 @company_bp.route('/students/<int:student_id>/view')
-@company_required
+@requires_company
 def view_student(student_id):
-    conn = get_db()
+    conn = connect_db()
     company_id = session['user_id']
 
     applied = conn.execute("""

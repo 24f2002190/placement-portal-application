@@ -3,7 +3,7 @@ import os
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'instance', 'placement.db')
 
-def get_db():
+def connect_db():
     """Returns a connection to the SQLite database."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row  
@@ -11,9 +11,9 @@ def get_db():
     return conn
 
 
-def create_tables():
+def setup_db():
     """Creates all tables if they don't already exist."""
-    conn = get_db()
+    conn = connect_db()
     cursor = conn.cursor()
 
 
@@ -91,9 +91,9 @@ def create_tables():
     print("All tables created successfully.")
 
 
-def seed_admin():
+def create_default_admin():
     """Inserts the default admin if one doesn't already exist."""
-    conn = get_db()
+    conn = connect_db()
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM admin WHERE username = 'admin'")
@@ -111,12 +111,12 @@ def seed_admin():
 
     conn.close()
 
-def get_user_by_email(email, role):
+def fetch_user(email, role):
     """
     Fetch a user by email for a given role.
     role must be: 'admin', 'student', or 'company'
     """
-    conn = get_db()
+    conn = connect_db()
     cursor = conn.cursor()
 
     if role == 'admin':

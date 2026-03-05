@@ -1,13 +1,13 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from functools import wraps
-from models import get_db
+from models import connect_db
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
 # ── DECORATOR ────────────────────────────────────────────────────────────────
 
-def admin_required(f):
+def requires_admin(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if session.get('role') != 'admin':
@@ -19,9 +19,9 @@ def admin_required(f):
 # ── DASHBOARD ────────────────────────────────────────────────────────────────
 
 @admin_bp.route('/dashboard')
-@admin_required
+@requires_admin
 def dashboard():
-    conn = get_db()
+    conn = connect_db()
 
     stats = {
         'total_students'  : conn.execute("SELECT COUNT(*) FROM student").fetchone()[0],
@@ -39,10 +39,10 @@ def dashboard():
 # ── COMPANIES ────────────────────────────────────────────────────────────────
 
 @admin_bp.route('/companies')
-@admin_required
+@requires_admin
 def companies():
     search = request.args.get('search', '').strip()
-    conn   = get_db()
+    conn   = connect_db()
 
     if search:
         companies = conn.execute(
@@ -57,9 +57,9 @@ def companies():
 
 
 @admin_bp.route('/companies/<int:company_id>/approve')
-@admin_required
+@requires_admin
 def approve_company(company_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("UPDATE company SET approval_status='Approved' WHERE company_id=?", (company_id,))
     conn.commit()
     conn.close()
@@ -68,9 +68,9 @@ def approve_company(company_id):
 
 
 @admin_bp.route('/companies/<int:company_id>/reject')
-@admin_required
+@requires_admin
 def reject_company(company_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("UPDATE company SET approval_status='Rejected' WHERE company_id=?", (company_id,))
     conn.commit()
     conn.close()
@@ -79,9 +79,9 @@ def reject_company(company_id):
 
 
 @admin_bp.route('/companies/<int:company_id>/blacklist')
-@admin_required
+@requires_admin
 def blacklist_company(company_id):
-    conn = get_db()
+    conn = connect_db()
     current = conn.execute("SELECT is_blacklisted FROM company WHERE company_id=?", (company_id,)).fetchone()
     new_status = 0 if current['is_blacklisted'] else 1
     conn.execute("UPDATE company SET is_blacklisted=? WHERE company_id=?", (new_status, company_id))
@@ -92,9 +92,9 @@ def blacklist_company(company_id):
 
 
 @admin_bp.route('/companies/<int:company_id>/delete')
-@admin_required
+@requires_admin
 def delete_company(company_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("DELETE FROM company WHERE company_id=?", (company_id,))
     conn.commit()
     conn.close()
@@ -105,10 +105,10 @@ def delete_company(company_id):
 # ── STUDENTS ─────────────────────────────────────────────────────────────────
 
 @admin_bp.route('/students')
-@admin_required
+@requires_admin
 def students():
     search = request.args.get('search', '').strip()
-    conn   = get_db()
+    conn   = connect_db()
 
     if search:
         students = conn.execute(
@@ -124,9 +124,9 @@ def students():
 
 
 @admin_bp.route('/students/<int:student_id>/blacklist')
-@admin_required
+@requires_admin
 def blacklist_student(student_id):
-    conn = get_db()
+    conn = connect_db()
     current = conn.execute("SELECT is_blacklisted FROM student WHERE student_id=?", (student_id,)).fetchone()
     new_status = 0 if current['is_blacklisted'] else 1
     conn.execute("UPDATE student SET is_blacklisted=? WHERE student_id=?", (new_status, student_id))
@@ -137,9 +137,9 @@ def blacklist_student(student_id):
 
 
 @admin_bp.route('/students/<int:student_id>/toggle_active')
-@admin_required
+@requires_admin
 def toggle_student_active(student_id):
-    conn = get_db()
+    conn = connect_db()
     current = conn.execute("SELECT is_active FROM student WHERE student_id=?", (student_id,)).fetchone()
     new_status = 0 if current['is_active'] else 1
     conn.execute("UPDATE student SET is_active=? WHERE student_id=?", (new_status, student_id))
@@ -150,9 +150,9 @@ def toggle_student_active(student_id):
 
 
 @admin_bp.route('/students/<int:student_id>/delete')
-@admin_required
+@requires_admin
 def delete_student(student_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("DELETE FROM student WHERE student_id=?", (student_id,))
     conn.commit()
     conn.close()
@@ -163,9 +163,9 @@ def delete_student(student_id):
 # ── PLACEMENT DRIVES ─────────────────────────────────────────────────────────
 
 @admin_bp.route('/drives')
-@admin_required
+@requires_admin
 def drives():
-    conn   = get_db()
+    conn   = connect_db()
     drives = conn.execute("""
         SELECT pd.*, c.company_name
         FROM placement_drive pd
@@ -177,9 +177,9 @@ def drives():
 
 
 @admin_bp.route('/drives/<int:drive_id>/approve')
-@admin_required
+@requires_admin
 def approve_drive(drive_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("UPDATE placement_drive SET status='Approved' WHERE drive_id=?", (drive_id,))
     conn.commit()
     conn.close()
@@ -188,9 +188,9 @@ def approve_drive(drive_id):
 
 
 @admin_bp.route('/drives/<int:drive_id>/reject')
-@admin_required
+@requires_admin
 def reject_drive(drive_id):
-    conn = get_db()
+    conn = connect_db()
     conn.execute("UPDATE placement_drive SET status='Rejected' WHERE drive_id=?", (drive_id,))
     conn.commit()
     conn.close()
@@ -201,9 +201,9 @@ def reject_drive(drive_id):
 # ── APPLICATIONS ─────────────────────────────────────────────────────────────
 
 @admin_bp.route('/applications')
-@admin_required
+@requires_admin
 def applications():
-    conn = get_db()
+    conn = connect_db()
     apps = conn.execute("""
         SELECT a.*, s.name AS student_name, s.email AS student_email,
                pd.job_title, c.company_name
@@ -217,9 +217,9 @@ def applications():
     return render_template('admin/applications.html', apps=apps)
 
 @admin_bp.route('/students/<int:student_id>/view')
-@admin_required
+@requires_admin
 def view_student(student_id):
-    conn = get_db()
+    conn = connect_db()
 
     student = conn.execute(
         "SELECT * FROM student WHERE student_id=?", (student_id,)

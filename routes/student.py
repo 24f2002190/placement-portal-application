@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash
 from functools import wraps
-from models import get_db
+from models import connect_db
 import os
 from werkzeug.utils import secure_filename
 
@@ -15,7 +15,7 @@ def allowed_file(filename):
 
 # ── DECORATOR ────────────────────────────────────────────────────────────────
 
-def student_required(f):
+def requires_student(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if session.get('role') != 'student':
@@ -27,10 +27,10 @@ def student_required(f):
 # ── DASHBOARD ────────────────────────────────────────────────────────────────
 
 @student_bp.route('/dashboard')
-@student_required
+@requires_student
 def dashboard():
     student_id = session['user_id']
-    conn = get_db()
+    conn = connect_db()
 
     drives = conn.execute("""
         SELECT pd.*, c.company_name,
@@ -62,10 +62,10 @@ def dashboard():
 # ── APPLY FOR A DRIVE ────────────────────────────────────────────────────────
 
 @student_bp.route('/apply/<int:drive_id>', methods=['POST'])
-@student_required
+@requires_student
 def apply(drive_id):
     student_id = session['user_id']
-    conn = get_db()
+    conn = connect_db()
 
     drive = conn.execute("""
         SELECT * FROM placement_drive
@@ -105,10 +105,10 @@ def apply(drive_id):
 # ── VIEW APPLICATION HISTORY ─────────────────────────────────────────────────
 
 @student_bp.route('/applications')
-@student_required
+@requires_student
 def applications():
     student_id = session['user_id']
-    conn = get_db()
+    conn = connect_db()
 
     apps = conn.execute("""
         SELECT a.*, pd.job_title, pd.job_description,
@@ -128,10 +128,10 @@ def applications():
 # ── EDIT PROFILE ─────────────────────────────────────────────────────────────
 
 @student_bp.route('/profile', methods=['GET', 'POST'])
-@student_required
+@requires_student
 def profile():
     student_id = session['user_id']
-    conn = get_db()
+    conn = connect_db()
 
     student = conn.execute(
         "SELECT * FROM student WHERE student_id = ?", (student_id,)
@@ -182,10 +182,10 @@ def profile():
     return render_template('student/profile.html', student=student)
 
 @student_bp.route('/history')
-@student_required
+@requires_student
 def history():
     student_id = session['user_id']
-    conn = get_db()
+    conn = connect_db()
 
     history = conn.execute("""
         SELECT a.*, pd.job_title, pd.job_description,
